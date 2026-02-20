@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ChurnStarPRED – Prediction Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 16px;
+      padding: 24px 20px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(14px);
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 800px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+    h2 {
+      font-size: 1rem;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-bottom: 12px;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      opacity: 0.9;
+    }
+    input {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    input:focus {
+      outline: none;
+      border-color: #ffd369;
+      box-shadow: 0 0 0 1px rgba(255, 211, 105, 0.6);
+    }
+    .btn-row {
+      margin-top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-primary {
+      background: #ffd369;
+      color: #2b2b2b;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+    .right-panel {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 14px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .risk-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .low { background: rgba(46, 213, 115, 0.2); color: #2ed573; }
+    .medium { background: rgba(255, 203, 72, 0.2); color: #ffcb48; }
+    .high { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+    .score {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .confidence {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-bottom: 10px;
+    }
+    .factors-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      opacity: 0.85;
+    }
+    ul {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin-left: 18px;
+      margin-bottom: 4px;
+    }
+    .tagline {
+      font-size: 0.75rem;
+      opacity: 0.8;
+      margin-top: 8px;
+    }
+    .header-line {
+      font-size: 0.8rem;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- LEFT: INPUT FORM -->
+    <div>
+      <h1>ChurnStarPRED – Prediction Tool</h1>
+      <h2>Test our AI model with different customer scenarios</h2>
+      <div class="header-line">
+        Enter the same fields shown on Slide 3 of your presentation.
+      </div>
+
+      <div class="form-group">
+        <label for="age">Age</label>
+        <input id="age" type="number" value="35" />
+      </div>
+      <div class="form-group">
+        <label for="tenure">Tenure (months)</label>
+        <input id="tenure" type="number" value="24" />
+      </div>
+      <div class="form-group">
+        <label for="claims">Claims Count</label>
+        <input id="claims" type="number" value="2" />
+      </div>
+      <div class="form-group">
+        <label for="delay">Avg Reimbursement Delay (days)</label>
+        <input id="delay" type="number" value="15" />
+      </div>
+      <div class="form-group">
+        <label for="sentiment">Negative Sentiment Score (0–100)</label>
+        <input id="sentiment" type="number" value="30" />
+      </div>
+      <div class="form-group">
+        <label for="late">Late Payment Count</label>
+        <input id="late" type="number" value="1" />
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-primary" onclick="predict()">Predict Churn Risk</button>
+        <button class="btn-secondary" onclick="loadLowRisk()">Example: Low Risk</button>
+        <button class="btn-secondary" onclick="loadHighRisk()">Example: High Risk</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: OUTPUT PANEL -->
+    <div class="right-panel" id="outputPanel">
+      <div>
+        <div id="riskPill" class="risk-pill low">Low Risk</div>
+        <div class="score" id="scoreText">Churn Probability: 20%</div>
+        <div class="confidence" id="confText">Model confidence: High</div>
+
+        <div class="factors-title">Key Drivers</div>
+        <ul id="factorsList">
+          <li>Short reimbursement delays (15 days)</li>
+          <li>Low negative sentiment from emails</li>
+          <li>Only occasional late payment behavior</li>
+        </ul>
+      </div>
+      <div class="tagline">
+        This is a demo scoring logic for presentation purposes, not a production model.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
+
+    function predict() {
+      const age = Number(document.getElementById("age").value || 0);
+      const tenure = Number(document.getElementById("tenure").value || 0);
+      const claims = Number(document.getElementById("claims").value || 0);
+      const delay = Number(document.getElementById("delay").value || 0);
+      const sentiment = Number(document.getElementById("sentiment").value || 0); // 0..100
+      const late = Number(document.getElementById("late").value || 0);
+
+      // Simple demo scoring rule that matches your story:
+      // More delay, more negative sentiment, more late payments → higher risk.
+      let score = 0;
+
+      // Delay contribution
+      if (delay > 30) score += 35;
+      else if (delay > 20) score += 25;
+      else if (delay > 10) score += 15;
+      else if (delay > 0) score += 5;
+
+      // Sentiment (0 to 100, higher = more negative)
+      if (sentiment > 80) score += 30;
+      else if (sentiment > 60) score += 22;
+      else if (sentiment > 40) score += 15;
+      else if (sentiment > 20) score += 8;
+      else score += 3;
+
+      // Late payments
+      if (late >= 3) score += 20;
+      else if (late === 2) score += 12;
+      else if (late === 1) score += 6;
+
+      // Claims (many claims → possible frustration)
+      if (claims >= 5) score += 15;
+      else if (claims >= 3) score += 8;
+      else if (claims === 2) score += 4;
+
+      // Tenure: very new customers slightly more sensitive
+      if (tenure < 12) score += 5;
+
+      // Age: neutral in this simple demo, but could be weighted
+      // Clamp and normalize to 0-100
+      score = clamp(score, 0, 100);
+
+      // Derive textual risk & confidence
+      const riskPill = document.getElementById("riskPill");
+      const scoreText = document.getElementById("scoreText");
+      const confText = document.getElementById("confText");
+      const factorsList = document.getElementById("factorsList");
+
+      let riskLabel = "Low Risk";
+      let pillClass = "risk-pill low";
+      let conf = "High";
+      if (score >= 70) {
+        riskLabel = "High Risk";
+        pillClass = "risk-pill high";
+        conf = "High";
+      } else if (score >= 40) {
+        riskLabel = "Medium Risk";
+        pillClass = "risk-pill medium";
+        conf = "Medium";
+      }
+
+      riskPill.className = pillClass;
+      riskPill.textContent = riskLabel;
+      scoreText.textContent = "Churn Probability: " + Math.round(score) + "%";
+      confText.textContent = "Model confidence: " + conf;
+
+      // Build explanation bullets
+      const reasons = [];
+
+      if (delay > 30) reasons.push("Very high reimbursement delay (" + delay + " days).");
+      else if (delay > 20) reasons.push("Long reimbursement delay (" + delay + " days).");
+      else if (delay > 10) reasons.push("Moderate reimbursement delay (" + delay + " days).");
+      else reasons.push("Fast reimbursements (" + delay + " days).");
+
+      if (sentiment > 80) reasons.push("Strongly negative sentiment in email interactions.");
+      else if (sentiment > 60) reasons.push("Noticeably negative customer sentiment.");
+      else if (sentiment > 40) reasons.push("Some negative sentiment present.");
+      else reasons.push("Overall neutral to positive sentiment.");
+
+      if (late >= 3) reasons.push("Frequent late payments (" + late + " times).");
+      else if (late === 2) reasons.push("Repeated late payments (" + late + " times).");
+      else if (late === 1) reasons.push("Occasional late payment history.");
+      else reasons.push("No late payment behaviour.");
+
+      if (claims >= 5) reasons.push("High number of claims (" + claims + "), likely service fatigue.");
+      else if (claims >= 3) reasons.push("Multiple claims filed (" + claims + ").");
+      else if (claims === 2) reasons.push("Moderate claims history (" + claims + ").");
+      else reasons.push("Low claims count (" + claims + ").");
+
+      if (tenure >= 60) reasons.push("Long-tenured customer – valuable to retain.");
+      else if (tenure >= 24) reasons.push("Established customer with meaningful history.");
+      else if (tenure < 12) reasons.push("Newer customer – still forming perceptions.");
+
+      // Render reasons
+      factorsList.innerHTML = "";
+      reasons.slice(0, 4).forEach(function (r) {
+        const li = document.createElement("li");
+        li.textContent = r;
+        factorsList.appendChild(li);
+      });
+    }
+
+    function loadLowRisk() {
+      document.getElementById("age").value = 62;
+      document.getElementById("tenure").value = 118;
+      document.getElementById("claims").value = 2;
+      document.getElementById("delay").value = 5;
+      document.getElementById("sentiment").value = 10;
+      document.getElementById("late").value = 0;
+      predict();
+    }
+
+    function loadHighRisk() {
+      document.getElementById("age").value = 28;
+      document.getElementById("tenure").value = 18;
+      document.getElementById("claims").value = 5;
+      document.getElementById("delay").value = 45;
+      document.getElementById("sentiment").value = 85;
+      document.getElementById("late").value = 3;
+      predict();
+    }
+
+    // Initialize with the slide’s default example
+    window.onload = predict;
+  </script>
+</body>
+</html>
